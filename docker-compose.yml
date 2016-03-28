@@ -1,0 +1,30 @@
+version: '2'
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+    volumes:
+      - 
+  
+  phpfpm:
+    container_name: phpfpm
+    image: bitnami/php-fpm
+    depends_on:
+      - mysql
+    volumes:
+      - /path/to/php/app:/app
+  nginx:
+    image: nginx
+    depends_on:
+      - phpfpm
+      - mysql
+    volumes:
+     - ./configs/nginx/vhost.template:/etc/nginx/conf.d/mysite.template
+    ports:
+     - "8080:80"
+    environment:
+     - NGINX_HOST=127.0.0.1
+     - NGINX_PORT=80
+    command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
